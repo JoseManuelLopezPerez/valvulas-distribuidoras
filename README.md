@@ -18,6 +18,7 @@ Las válvulas, en el mismo orden que la tabla de referencia del curso:
 Cómo usar la página:
 
 - Arriba a la derecha hay un menú para elegir la válvula. También puedes cambiar de válvula editando el final de la dirección (por ejemplo `#5-3-centro-abierto`).
+- Junto al menú está **Velocidad** (0.25× a 2×), que hace más lenta o más rápida toda la animación: corredera, cilindro, motor y flujo. El navegador recuerda la última velocidad elegida.
 - Los botones **Corte**, **Símbolo** y **Ambos** deciden qué se ve. El corte muestra la corredera por dentro; el símbolo muestra la representación normalizada con el cilindro o el motor.
 - Debajo hay botones de mando. En las válvulas de botón, palanca o una bobina, mantén presionado el botón: la válvula cambia de posición mientras lo sostienes y regresa sola al soltarlo. En la 5/2 hay un pulso para cada lado, y en las de tres posiciones hay tres botones (Energizar Y1, Centro, Energizar Y2).
 - Debajo de los botones aparece el texto de la posición actual: qué puertos se conectan y qué hace el actuador.

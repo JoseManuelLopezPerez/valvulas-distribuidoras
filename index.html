@@ -56,7 +56,10 @@ button{flex:1;border:0;border-radius:10px;padding:12px 6px;background:var(--btn)
 .lbl{fill:var(--ink);font-size:15px;font-weight:600;font-family:system-ui,sans-serif}
 .pipe{fill:none;stroke-width:3.5;stroke:var(--off);stroke-linecap:round;stroke-linejoin:round}
 .pipe.p{stroke:var(--press)} .pipe.r{stroke:var(--ret)}
-.flow{stroke-dasharray:8 6;animation:dash .6s linear infinite}
+:root{--k:1}
+.flow{stroke-dasharray:8 6;animation:dash calc(.6s / var(--k)) linear infinite}
+.speed{display:flex;align-items:center;gap:6px;font-size:.88rem;color:var(--muted)}
+.speed select{padding:6px 8px}
 .flow.rev{animation-direction:reverse}
 @keyframes dash{to{stroke-dashoffset:-14}}
 .arrow line{stroke:currentColor;stroke-width:2}
@@ -66,7 +69,7 @@ button{flex:1;border:0;border-radius:10px;padding:12px 6px;background:var(--btn)
 .cutlbl{font-family:system-ui,sans-serif;font-size:15px;font-weight:700;fill:var(--ink)}
 .cutsmall{font-family:system-ui,sans-serif;font-size:9.5px;fill:var(--muted)}
 .cutnote{font-family:system-ui,sans-serif;font-size:11px;fill:var(--muted)}
-.fp{fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6 7;animation:dash .5s linear infinite;opacity:.95}
+.fp{fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6 7;animation:dash calc(.5s / var(--k)) linear infinite;opacity:.95}
 .coil{transition:filter .2s}
 .coil.on{filter:drop-shadow(0 0 5px #ffb347) drop-shadow(0 0 2px #ff8c1a)}
 .ontag{font-family:system-ui,sans-serif;font-size:9px;font-weight:700;fill:#ff8c1a;opacity:0;transition:opacity .2s}
@@ -107,6 +110,15 @@ button{flex:1;border:0;border-radius:10px;padding:12px 6px;background:var(--btn)
 <header>
   <div class="hwrap">
     <div class="brand">Válvulas distribuidoras</div>
+    <label class="speed">Velocidad
+      <select id="speed" aria-label="Velocidad de la animación">
+        <option value="0.25">0.25×</option>
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+    </label>
     <select id="nav" aria-label="Elegir válvula"></select>
   </div>
 </header>
@@ -579,7 +591,7 @@ function makeSpoolModule(D){
 
   function tick(ts){
    if(last===null) last=ts;
-   var dt=Math.min(0.05,(ts-last)/1000); last=ts;
+   var dt=Math.min(0.05,(ts-last)/1000)*SPEED_K; last=ts;
    var tg=POS[ti].shift;
    if(s<tg) s=Math.min(tg,s+SV*dt);
    if(s>tg) s=Math.max(tg,s-SV*dt);
@@ -599,7 +611,7 @@ function makeSpoolModule(D){
    var pulse=function(side){
     if(sig.L||sig.R) return;
     var b=q(side==='L'?'bL':'bR'); sig[side]=true; ti=side==='L'?0:NP-1; b.classList.add('on');
-    timers.push(setTimeout(function(){sig[side]=false;b.classList.remove('on');},700));
+    timers.push(setTimeout(function(){sig[side]=false;b.classList.remove('on');},700/Math.min(1,SPEED_K)));
    };
    q('bL').onclick=function(){pulse('L')}; q('bR').onclick=function(){pulse('R')};
   }
@@ -757,6 +769,16 @@ var v53=makeSpoolModule({
 /* ======================================================================
    REGISTRO Y NAVEGACIÓN  (el orden sigue la tabla de referencia)
    ====================================================================== */
+/* velocidad global de la animación (corredera, cilindro, motor y flujo); se recuerda en este navegador */
+var SPEED_K=1;
+(function(){
+  var sel=document.getElementById('speed');
+  function apply(v){ SPEED_K=parseFloat(v)||1; document.documentElement.style.setProperty('--k',SPEED_K); }
+  try{ var saved=localStorage.getItem('velocidad'); if(saved&&sel.querySelector('option[value="'+saved+'"]')) sel.value=saved; }catch(e){}
+  apply(sel.value);
+  sel.onchange=function(){ apply(sel.value); try{localStorage.setItem('velocidad',sel.value);}catch(e){} };
+})();
+
 var MODULES=[v22nc, v22na, v32nc, v32na, v42, v52, v43, v53];
 
 /* ======================================================================
