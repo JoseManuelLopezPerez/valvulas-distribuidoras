@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Válvulas distribuidoras</title>
+<style>
+:root{
+  --bg:#f4f3ee; --card:#ffffff; --ink:#1d1d1f; --muted:#6b6b70; --line:#2b2b2e; --border:#e2e1db;
+  --off:#b9b9bf; --press:#d93b2f; --ret:#2f6fd6; --oil:#d9b26a; --air:#d5dce3;
+  --pressfill:rgba(217,59,47,.22); --retfill:rgba(47,111,214,.18);
+  --btn:#ebeae4; --btnon:#1d1d1f; --btnontext:#fff;
+  --hl:rgba(255,196,0,.30); --hlb:#d99a00; --vp:#e9e8e2;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121214; --card:#1d1d20; --ink:#f1f1f3; --muted:#a0a0a8; --line:#e4e4e8; --border:#2e2e33;
+    --off:#55555c; --press:#ff5f52; --ret:#5c97ff; --oil:#c9a25a; --air:#3d454e;
+    --pressfill:rgba(255,95,82,.25); --retfill:rgba(92,151,255,.22);
+    --btn:#2a2a2f; --btnon:#f1f1f3; --btnontext:#121214;
+    --hl:rgba(255,196,0,.28); --hlb:#ffc400; --vp:#2a2a2f;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--border)}
+.hwrap{max-width:1500px;margin:0 auto;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{font-weight:700;font-size:1.05rem;margin-right:auto}
+select{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--ink);max-width:100%}
+main{max-width:1500px;margin:0 auto;padding:16px}
+h1{font-size:1.3rem;margin:0 0 2px}
+.sub{color:var(--muted);font-size:.92rem;margin:0 0 14px}
+.card{background:var(--card);border-radius:14px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card h3{font-size:.85rem;font-weight:600;color:var(--muted);margin:2px 4px 6px;text-transform:uppercase;letter-spacing:.04em}
+svg{width:100%;height:auto;display:block}
+.seg{display:inline-flex;background:var(--btn);border-radius:10px;padding:3px;margin-bottom:12px}
+.seg button{background:transparent;padding:7px 14px;font-size:.88rem;flex:none}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.views{display:grid;gap:12px}
+#cardSym svg{max-height:480px}
+@media (min-width:1280px){ .views.both{grid-template-columns:1.6fr 1fr} }
+.btns{display:flex;gap:8px;margin:4px 0;padding:8px 0;position:sticky;bottom:0;z-index:4;background:var(--bg)}
+button{flex:1;border:0;border-radius:10px;padding:12px 6px;background:var(--btn);color:var(--ink);font:inherit;font-size:.95rem;font-weight:600;cursor:pointer}
+.btns button.on{background:var(--btnon);color:var(--btnontext)}
+.info{background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.info h2{font-size:1rem;margin:0 0 4px}
+.info p{margin:5px 0;font-size:.93rem}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.84rem;color:var(--muted);margin-top:10px}
+.sw{display:inline-block;width:18px;height:6px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.note{color:var(--muted);font-size:.86rem;margin-top:12px}
+
+/* símbolo */
+.stroke{stroke:var(--line);fill:none;stroke-width:2}
+.thin{stroke:var(--line);fill:none;stroke-width:1.5}
+.txt{fill:var(--ink);font-size:13px;font-family:system-ui,sans-serif}
+.lbl{fill:var(--ink);font-size:15px;font-weight:600;font-family:system-ui,sans-serif}
+.pipe{fill:none;stroke-width:3.5;stroke:var(--off);stroke-linecap:round;stroke-linejoin:round}
+.pipe.p{stroke:var(--press)} .pipe.r{stroke:var(--ret)}
+.flow{stroke-dasharray:8 6;animation:dash .6s linear infinite}
+.flow.rev{animation-direction:reverse}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.arrow line{stroke:currentColor;stroke-width:2}
+.arrow polygon{fill:currentColor}
+
+/* corte */
+.cutlbl{font-family:system-ui,sans-serif;font-size:15px;font-weight:700;fill:var(--ink)}
+.cutsmall{font-family:system-ui,sans-serif;font-size:9.5px;fill:var(--muted)}
+.cutnote{font-family:system-ui,sans-serif;font-size:11px;fill:var(--muted)}
+.fp{fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6 7;animation:dash .5s linear infinite;opacity:.95}
+.coil{transition:filter .2s}
+.coil.on{filter:drop-shadow(0 0 5px #ffb347) drop-shadow(0 0 2px #ff8c1a)}
+.ontag{font-family:system-ui,sans-serif;font-size:9px;font-weight:700;fill:#ff8c1a;opacity:0;transition:opacity .2s}
+.ontag.on{opacity:1}
+.hold{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+
+/* diseño general: animación a la izquierda, visor de la tabla a la derecha */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+#stage{min-width:0}
+.ref{min-width:0}
+.refcard{background:var(--card);border-radius:14px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.refhead{display:flex;align-items:center;justify-content:space-between;width:100%;flex:none;background:transparent;padding:4px 4px 8px;text-align:left;font-size:.85rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;border-radius:8px}
+.refhead .chev{transition:transform .2s;font-size:1rem}
+.refhead[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.refbody.closed{display:none}
+.reftools{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.reftools button{flex:none;padding:8px 12px;font-size:.85rem}
+.reftools #zIn,.reftools #zOut{width:40px;font-size:1.1rem;line-height:1;padding:8px 0}
+.reftools .primary{background:var(--btnon);color:var(--btnontext);margin-left:auto}
+.viewport{position:relative;overflow:hidden;width:100%;aspect-ratio:4/3;max-height:75vh;background:var(--vp);border-radius:10px;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.viewport.drag{cursor:grabbing}
+.layer{position:absolute;left:0;top:0;width:1080px;height:810px;transform-origin:0 0;will-change:transform}
+.layer img{display:block;width:1080px;height:810px;max-width:none;pointer-events:none;-webkit-user-drag:none}
+.hl{position:absolute;pointer-events:none;background:var(--hl);border:2px solid var(--hlb);border-radius:4px;box-sizing:border-box}
+.refmsg{display:none;position:absolute;inset:0;padding:16px;font-size:.9rem;color:var(--muted);align-items:center;justify-content:center;text-align:center}
+.refhint{color:var(--muted);font-size:.8rem;margin:8px 4px 2px}
+.refrow{font-size:.85rem;margin:8px 4px 0}
+@media (min-width:1000px){
+  .layout{grid-template-columns:minmax(0,1fr) clamp(340px,30vw,420px)}
+  .ref{position:sticky;top:76px}
+  .refhead{cursor:default;pointer-events:none}
+  .refhead .chev{display:none}
+  .refbody.closed{display:block}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="brand">Válvulas distribuidoras</div>
+    <select id="nav" aria-label="Elegir válvula"></select>
+  </div>
+</header>
+<main>
+  <div class="layout">
+    <div id="stage"></div>
+    <aside class="ref" id="ref" aria-label="Tabla de referencia">
+      <div class="refcard">
+        <button class="refhead" id="refToggle" aria-expanded="true" aria-controls="refBody"><span>Tabla de referencia</span><span class="chev" aria-hidden="true">&#9662;</span></button>
+        <div class="refbody" id="refBody">
+          <div class="reftools">
+            <button id="zIn" type="button" aria-label="Acercar">+</button>
+            <button id="zOut" type="button" aria-label="Alejar">&minus;</button>
+            <button id="zReset" type="button">Restablecer</button>
+            <button id="zRow" type="button" class="primary">Ir a esta fila</button>
+          </div>
+          <div class="viewport" id="vp">
+            <div class="layer" id="layer">
+              <img id="refImg" src="assets/tabla-distribuidores.jpg" width="1080" height="810" alt="Tabla de válvulas distribuidoras y sus mandos, del material del curso" draggable="false">
+              <div class="hl" id="hl"></div>
+            </div>
+            <div class="refmsg" id="refMsg">No se pudo cargar assets/tabla-distribuidores.jpg. La carpeta assets debe estar junto a index.html.</div>
+          </div>
+          <p class="refrow" id="refRow"></p>
+          <p class="refhint">Rueda del ratón o pellizco para acercar, arrastra para mover y doble clic (o doble toque) para alternar el zoom.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+/* ======================================================================
+   UTILIDADES
+   ====================================================================== */
+function zig(x0,x1,n,yc,amp){
+  var pts=[x0+','+yc], step=(x1-x0)/(n*2);
+  for(var i=1;i<n*2;i++) pts.push((x0+i*step).toFixed(1)+','+(yc+(i%2?-amp:amp)));
+  pts.push(x1+','+yc); return pts.join(' ');
+}
+
+var CUT_DEFS='<defs>'+
+ '<linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7b8087"/><stop offset=".45" stop-color="#b9bdc2"/><stop offset="1" stop-color="#858a90"/></linearGradient>'+
+ '<linearGradient id="gSteel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ea4ab"/><stop offset=".42" stop-color="#f2f4f6"/><stop offset="1" stop-color="#8f959c"/></linearGradient>'+
+ '<linearGradient id="gHouse" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e949b"/><stop offset=".38" stop-color="#e6e9ec"/><stop offset="1" stop-color="#7c8188"/></linearGradient>'+
+ '<linearGradient id="gBlack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3b3e"/><stop offset=".5" stop-color="#1c1c1e"/><stop offset="1" stop-color="#0f0f10"/></linearGradient>'+
+ '<pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="rgba(0,0,0,.2)" stroke-width="1.4"/></pattern>'+
+ '<pattern id="coilP" width="4" height="10" patternUnits="userSpaceOnUse"><rect width="4" height="10" fill="#a95a24"/><rect width="2" height="10" fill="#dd8f4c"/></pattern>'+
+ '</defs>';
+
+/* ======================================================================
+   REGISTRO DE ACTUADORES
+   Cada actuador define, para un lado ('L' o 'R'):
+     sym(x, m, label)  -> SVG del símbolo ISO. x = borde de las cajas, m = -1 (izq) / +1 (der).
+                          Se dibuja dentro del grupo que se desplaza con las cajas. Zona y 260..320.
+     back(side, ctx)   -> SVG estático del corte, dibujado ANTES del cuerpo (carcasas, tapas).
+     front(side, ctx)  -> SVG del corte dibujado DESPUÉS de la corredera (piezas móviles).
+     update(q, side, c)-> anima el corte. c = {s: desplazamiento de corredera, on: bobina/señal activa,
+                          drain: color de fugas internas, IDLE, PR}
+   Geometría del corte (viewBox 0..640 x 0..320): cuerpo x 140..500, eje de la corredera y = 180,
+   zona izquierda x 0..140, zona derecha x 500..640. La corredera debe tocar al actuador:
+   el vástago (stem) de la ficha empieza/termina donde el actuador empuja.
+   ====================================================================== */
+var ACTS={};
+
+/* --- palanca (solo lado izquierdo). Empuja el vástago en x = 98 --- */
+ACTS.lever={
+  sym:function(x,m){
+    return '<path class="thin" d="M'+x+' 300 H'+(x+m*22)+'"/><line class="thin" x1="'+(x+m*32)+'" y1="316" x2="'+(x+m*14)+'" y2="284"/><circle cx="'+(x+m*12)+'" cy="279" r="4" class="thin" fill="var(--card)"/>';
+  },
+  back:function(){
+    return '<rect x="82" y="114" width="16" height="28" fill="url(#gBody)" stroke="#4a4e54" stroke-width="1.2"/>'+
+      '<rect x="98" y="140" width="44" height="80" fill="url(#gBody)" stroke="#4a4e54" stroke-width="1.2"/><rect x="98" y="140" width="44" height="80" fill="url(#hatch)"/>'+
+      '<rect x="98" y="172" width="42" height="16" fill="#3a3d42"/>';
+  },
+  front:function(){
+    return '<g id="levL"><line x1="90" y1="130" x2="92" y2="172" stroke="#5b6168" stroke-width="8" stroke-linecap="round"/>'+
+      '<circle cx="92" cy="174" r="6" fill="url(#gSteel)" stroke="#5b6168"/>'+
+      '<line x1="90" y1="130" x2="52" y2="46" stroke="#2a2a2d" stroke-width="8" stroke-linecap="round"/><circle cx="48" cy="38" r="11" fill="url(#gBlack)"/></g>'+
+      '<circle cx="90" cy="130" r="4" fill="#d9dde2" stroke="#4a4e54"/><text x="66" y="30" class="cutnote">palanca</text>';
+  },
+  update:function(q,side,c){
+    var ph=Math.asin(Math.max(-1,Math.min(1,c.s/44)))*180/Math.PI;
+    q('levL').setAttribute('transform','rotate('+(-ph).toFixed(2)+' 90 130)');
+  }
+};
+
+/* --- pulsador manual "de botón" (solo lado izquierdo). Empuja el vástago en x = 98.
+       Símbolo ISO: línea con un semicírculo (D) al extremo. --- */
+ACTS.button={
+  sym:function(x,m){
+    var xe=x+m*20, sw=m<0?0:1;
+    return '<path class="thin" d="M'+x+' 290 H'+xe+'"/>'+
+      '<path class="thin" style="fill:var(--card)" d="M'+xe+' 279 A11 11 0 0 '+sw+' '+xe+' 301 Z"/>';
+  },
+  back:function(){
+    return '<rect x="52" y="146" width="46" height="68" fill="url(#gBody)" stroke="#4a4e54" stroke-width="1.2"/><rect x="52" y="146" width="46" height="68" fill="url(#hatch)"/>'+
+      '<rect x="52" y="152" width="46" height="56" fill="#3a3d42"/>'+
+      '<rect x="98" y="140" width="44" height="80" fill="url(#gBody)" stroke="#4a4e54" stroke-width="1.2"/><rect x="98" y="140" width="44" height="80" fill="url(#hatch)"/>'+
+      '<rect x="98" y="172" width="42" height="16" fill="#3a3d42"/>';
+  },
+  front:function(){
+    return '<g id="btnL"><rect x="40" y="177" width="58" height="6" fill="#c3c8ce" stroke="#5b6168" stroke-width=".6"/>'+
+      '<path d="M44 155 H30 A14 25 0 0 0 30 205 H44 Z" fill="#c8372d" stroke="#7d1f19" stroke-width="1.2"/>'+
+      '<path d="M26 164 A10 18 0 0 0 26 178" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/></g>'+
+      '<text x="16" y="140" class="cutnote">botón</text>';
+  },
+  update:function(q,side,c){
+    q('btnL').setAttribute('transform','translate('+c.s.toFixed(2)+',0)');
+  }
+};
+
+/* --- resorte de retorno. Derecho: tapa 498..580, el vástago termina en 520.
+       Izquierdo: tapa 60..142, el vástago empieza en 120. --- */
+ACTS.spring={
+  sym:function(x,m){ return '<polyline class="thin" points="'+(m>0?zig(x,x+30,3,290,12):zig(x-30,x,3,290,12))+'"/>'; },
+  back:function(side,ctx){
+    var R=side==='R', cx=R?498:60, vx=R?500:66;
+    return '<rect x="'+cx+'" y="140" width="82" height="80" fill="url(#gBody)" stroke="#4a4e54" stroke-width="1.2"/><rect x="'+cx+'" y="140" width="82" height="80" fill="url(#hatch)"/>'+
+      '<rect id="scav'+side+'" x="'+vx+'" y="156" width="74" height="48" fill="'+ctx.IDLE+'"/><text x="'+(cx+41)+'" y="238" class="cutnote" text-anchor="middle">resorte</text>';
+  },
+  front:function(side){
+    return '<polyline id="spr'+side+'" fill="none" stroke="#4f555c" stroke-width="2.2"/><rect id="wsh'+side+'" x="0" y="162" width="4" height="36" fill="#5d6268"/>';
+  },
+  update:function(q,side,c){
+    var turns=function(len){return Math.max(2,Math.min(6,Math.round(len/11)));};
+    if(side==='R'){ var w=518+Math.max(0,c.s); q('wshR').setAttribute('x',w); q('sprR').setAttribute('points',zig(w+4,574,turns(570-w),180,18)); }
+    else { var w2=118+Math.min(0,c.s); q('wshL').setAttribute('x',w2); q('sprL').setAttribute('points',zig(66,w2,turns(w2-66),180,18)); }
+    q('scav'+side).setAttribute('fill',c.drain);
+  }
+};
+
+/* --- solenoide de mando directo, con o sin resorte de centrado en la misma tapa.
+       Izquierdo: el empujador termina en x = 118. Derecho: empieza en x = 522. --- */
+function solDirect(withSpring){
+  return {
+    sym:function(x,m,label){
+      var sw=withSpring?30:0, bx=m<0?x-sw-25:x+sw, out='';
+      if(withSpring) out+='<polyline class="thin" points="'+(m<0?zig(x-30,x,3,290,12):zig(x,x+30,3,290,12))+'"/>';
+      out+='<rect x="'+bx+'" y="285" width="25" height="30" class="stroke" fill="var(--card)"/>'+
+        '<line class="thin" x1="'+(bx+4)+'" y1="312" x2="'+(bx+21)+'" y2="288"/>'+
+        '<text x="'+(bx+12.5)+'" y="332" class="txt" text-anchor="middle">'+label+'</text>';
+      return out;
+    },
+    back:function(side,ctx){
+      var L=side==='L', hx=L?14:530, ex=L?0:624, cx=L?24:540, kx=L?18:532, tx=L?40:550, px1=L?52:562, px2=L?73:583, cap=L?108:498, cav=L?112:500;
+      var lab=L?ctx.D.act.labelL:ctx.D.act.labelR;
+      return '<rect x="'+ex+'" y="160" width="16" height="40" rx="3" fill="url(#gBlack)"/>'+
+        '<rect x="'+hx+'" y="132" width="96" height="96" rx="8" fill="url(#gHouse)" stroke="#4a4e54" stroke-width="1.2"/>'+
+        '<rect x="'+hx+'" y="132" width="96" height="96" rx="8" fill="url(#hatch)"/>'+
+        '<g class="coil" id="coil'+side+'"><rect x="'+cx+'" y="140" width="76" height="24" fill="url(#coilP)" stroke="#6d3a15" stroke-width=".8"/>'+
+        '<rect x="'+cx+'" y="196" width="76" height="24" fill="url(#coilP)" stroke="#6d3a15" stroke-width=".8"/></g>'+
+        '<rect x="'+kx+'" y="166" width="90" height="28" fill="#3a3d42"/>'+
+        '<rect x="'+tx+'" y="100" width="50" height="32" rx="3" fill="url(#gBlack)"/>'+
+        '<rect x="'+px1+'" y="93" width="5" height="8" fill="#c9ccd0"/><rect x="'+px2+'" y="93" width="5" height="8" fill="#c9ccd0"/>'+
+        '<text x="'+(tx+25)+'" y="121" text-anchor="middle" style="font:700 12px system-ui;fill:#fff">'+lab+'</text>'+
+        '<text x="'+(tx+25)+'" y="88" text-anchor="middle" class="ontag" id="on'+side+'">ENERGIZADO</text>'+
+        '<rect x="'+cap+'" y="138" width="34" height="84" fill="url(#gBody)" stroke="#4a4e54" stroke-width="1.2"/><rect x="'+cap+'" y="138" width="34" height="84" fill="url(#hatch)"/>'+
+        '<rect id="cav'+side+'" x="'+cav+'" y="155" width="28" height="50" fill="'+ctx.IDLE+'"/>';
+    },
+    front:function(side){
+      var L=side==='L', out='';
+      if(withSpring) out+='<polyline id="spr'+side+'" fill="none" stroke="#4f555c" stroke-width="2.2"/><rect id="w'+side+'" y="162" width="4" height="36" fill="#5d6268"/>';
+      out+=L?'<g id="armL"><rect x="84" y="177" width="34" height="6" fill="#c3c8ce"/><rect x="40" y="168" width="44" height="24" rx="2" fill="url(#gSteel)" stroke="#5b6168"/></g>'
+            :'<g id="armR"><rect x="522" y="177" width="34" height="6" fill="#c3c8ce"/><rect x="556" y="168" width="44" height="24" rx="2" fill="url(#gSteel)" stroke="#5b6168"/></g>';
+      return out;
+    },
+    update:function(q,side,c){
+      var L=side==='L';
+      /* el empujador siempre está en contacto con el extremo del vástago: lo empuja su bobina o lo empuja la corredera */
+      q('arm'+side).setAttribute('transform','translate('+c.s+',0)');
+      if(withSpring){
+        if(L){ var wl=140+Math.min(0,c.s); q('wL').setAttribute('x',wl-4); q('sprL').setAttribute('points',zig(112,wl-4,5,180,15)); }
+        else { var wr=500+Math.max(0,c.s); q('wR').setAttribute('x',wr); q('sprR').setAttribute('points',zig(wr+4,528,5,180,15)); }
+      }
+      q('cav'+side).setAttribute('fill',c.drain);
+      q('coil'+side).classList.toggle('on',c.on); q('on'+side).classList.toggle('on',c.on);
+    }
+  };
+}
+ACTS.sol=solDirect(false);
+ACTS.solspring=solDirect(true);
+
+/* --- solenoide con servopilotaje neumático (biestable 5/2). Pistón piloto: izq. termina en 106, der. empieza en 534 --- */
+ACTS.solpilot={
+  sym:function(x,m,label){
+    var L=m<0, o=L?x-64:x, solX=L?x-64:x+38, div=L?x-38:x+38, pilX=L?x-38:x;
+    var tri=L?(pilX+8)+',286 '+(pilX+8)+',302 '+(pilX+28)+',294':(pilX+30)+',286 '+(pilX+30)+',302 '+(pilX+10)+',294';
+    return '<rect x="'+o+'" y="282" width="64" height="24" class="thin" fill="var(--card)"/>'+
+      '<line class="thin" x1="'+div+'" y1="282" x2="'+div+'" y2="306"/>'+
+      '<line class="thin" x1="'+(solX+4)+'" y1="304" x2="'+(solX+22)+'" y2="284"/>'+
+      '<polygon points="'+tri+'" fill="none" stroke="var(--line)" stroke-width="1.5"/>'+
+      '<rect x="'+(solX+4)+'" y="265" width="18" height="6" class="thin"/><rect x="'+(solX+4)+'" y="273" width="18" height="6" class="thin"/>'+
+      '<text x="'+(solX+13)+'" y="257" class="txt" text-anchor="middle">'+label+'</text>';
+  },
+  back:function(side,ctx){
+    var L=side==='L';
+    var cap=L?40:498, cav=L?48:500, hx=L?54:522, cx=L?60:528, tx=L?70:538, ch=L?60:572, lab=L?ctx.D.act.labelL:ctx.D.act.labelR;
+    return '<rect x="'+cap+'" y="136" width="102" height="88" fill="url(#gBody)" stroke="#4a4e54" stroke-width="1.2"/><rect x="'+cap+'" y="136" width="102" height="88" fill="url(#hatch)"/>'+
+      '<rect x="'+cav+'" y="148" width="92" height="64" fill="'+ctx.IDLE+'"/>'+
+      '<rect id="pc'+side+'" x="'+cav+'" y="148" width="0" height="64"/>'+
+      '<rect id="pch'+side+'" x="'+ch+'" y="132" width="8" height="18"/>'+
+      '<rect x="'+hx+'" y="92" width="64" height="42" rx="5" fill="url(#gHouse)" stroke="#4a4e54" stroke-width="1.2"/>'+
+      '<g class="coil" id="coil'+side+'"><rect x="'+cx+'" y="98" width="52" height="30" fill="url(#coilP)" stroke="#6d3a15" stroke-width=".8"/></g>'+
+      '<rect x="'+tx+'" y="76" width="32" height="14" rx="3" fill="url(#gBlack)"/><text x="'+(tx+16)+'" y="87" text-anchor="middle" style="font:700 11px system-ui;fill:#fff">'+lab+'</text>'+
+      '<text x="'+(tx+16)+'" y="70" text-anchor="middle" class="ontag" id="on'+side+'">PULSO</text>';
+  },
+  front:function(side){
+    return side==='L'?'<g id="pisL"><rect x="92" y="150" width="14" height="60" rx="2" fill="url(#gSteel)" stroke="#5b6168"/></g>'
+                     :'<g id="pisR"><rect x="534" y="150" width="14" height="60" rx="2" fill="url(#gSteel)" stroke="#5b6168"/></g>';
+  },
+  update:function(q,side,c){
+    var col=c.on?c.PR:c.IDLE;
+    if(side==='L'){ q('pisL').setAttribute('transform','translate('+c.s+',0)'); q('pcL').setAttribute('width',Math.max(0,92+c.s-48)); }
+    else { q('pisR').setAttribute('transform','translate('+c.s+',0)'); q('pcR').setAttribute('x',548+c.s); q('pcR').setAttribute('width',Math.max(0,592-(548+c.s))); }
+    q('pc'+side).setAttribute('fill',col); q('pch'+side).setAttribute('fill',col);
+    q('coil'+side).classList.toggle('on',c.on); q('on'+side).classList.toggle('on',c.on);
+  }
+};
+
+/* ======================================================================
+   MOTOR GENÉRICO DE VÁLVULAS DE CORREDERA
+   Ficha D:
+    id, cat, title, h1, sub, note, medium: 'air' | 'oil'
+    load: 'single' (cilindro simple efecto) | 'double' (doble efecto) | 'consumer' (consumidor de flujo continuo)
+    work: {puerto: 'cap' | 'rod'}   (para 'consumer' basta {puerto:'cap'})
+    ports: {clave: {role:'P'|'W'|'R', side:'t'|'b', x: centro de la cámara principal en el corte,
+                    alt:[x,...] cámaras extra unidas por galería interna (solo side 'b'),
+                    slot: 0..1 posición del puerto en la caja del símbolo}}
+    positions: [{shift, conns:[[a,b],...], text:{t,f,e}}]   orden = cajas de izquierda a derecha,
+               el shift debe DECRECER de izquierda a derecha (caja izquierda = corredera a la derecha)
+    restIndex: caja que en reposo queda bajo los puertos
+    lands: resaltes [x0,x1] a shift 0; stem: [x0,x1] vástago; bore: [x0,x1] alojamiento
+    act: {L: tipo, R: tipo, labelL, labelR}  (tipos en ACTS)
+    control: 'hold'  -> hold:{label, index, coil:'L'|'R'|null}
+             'pulse' -> dos botones de pulso, izq. lleva a la caja 0, der. a la última
+             'select'-> buttons:[{label, index, coil}]  (botones con enclavamiento)
+    endMsg: {ext, ret} opcional
+   ====================================================================== */
+function makeSpoolModule(D){
+ return {id:D.id, cat:D.cat, title:D.title, ref:D.ref, D:D, mount:function(root){
+  var air=D.medium==='air';
+  var IDLE=air?'var(--air)':'var(--oil)', PR='var(--press)', RT='var(--ret)';
+  var P=D.ports, K=Object.keys(P), POS=D.positions, NP=POS.length, BW=70, X0=200-NP*BW/2, RI=D.restIndex;
+  var px=function(k){return X0+RI*BW+P[k].slot*BW};
+  var cham=function(k){return [P[k].x].concat(P[k].alt||[])};
+  var ctx={D:D, IDLE:IDLE};
+  var workKeys=K.filter(function(k){return P[k].role==='W'});
+
+  /* estado de cada puerto por posición: 'p' presión, 'r' retorno/escape, 'x' bloqueado */
+  var ST=POS.map(function(pos){
+   var st={};
+   function partners(k){var r=[];pos.conns.forEach(function(c){if(c[0]===k)r.push(c[1]);if(c[1]===k)r.push(c[0]);});return r;}
+   K.forEach(function(k){
+    var role=P[k].role, pr=partners(k);
+    if(role==='P') st[k]='p';
+    else if(role==='W') st[k]=pr.some(function(o){return P[o].role==='P'})?'p':(pr.some(function(o){return P[o].role==='R'})?'r':'x');
+    else st[k]=pr.length?'r':'x';
+   });
+   return st;
+  });
+  function cyl(st){
+   if(D.load==='consumer') return 0;
+   var cap=null,rod=null;
+   K.forEach(function(k){if(D.work[k]==='cap')cap=st[k];if(D.work[k]==='rod')rod=st[k];});
+   if(D.load==='single') return cap==='p'?1:(cap==='r'?-1:0);
+   if(cap==='p'&&rod==='r') return 1;
+   if(rod==='p'&&cap==='r') return -1;
+   return 0;
+  }
+  function fed(st){ return workKeys.some(function(k){return st[k]==='p'}); }
+
+  /* ---------------- símbolo ---------------- */
+  function arrowSVG(x1,y1,x2,y2,id){
+   var dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L;
+   var tx=x2-ux*2,ty=y2-uy*2,bx=tx-ux*10,by=ty-uy*10,nx=-uy*4.5,ny=ux*4.5,f=function(v){return v.toFixed(1)};
+   return '<g id="'+id+'" class="arrow" style="color:var(--line)"><line x1="'+f(x1)+'" y1="'+y1+'" x2="'+f(bx)+'" y2="'+f(by)+'"/><polygon points="'+f(tx)+','+f(ty)+' '+f(bx+nx)+','+f(by+ny)+' '+f(bx-nx)+','+f(by-ny)+'"/></g>';
+  }
+  var lp=function(k){return {x:P[k].slot*BW,y:P[k].side==='t'?0:60}};
+  var boxes='';
+  POS.forEach(function(pos,i){
+   var g='<g transform="translate('+(X0+i*BW)+',260)"><rect width="70" height="60" class="stroke" fill="var(--card)"/>', used={};
+   pos.conns.forEach(function(c,j){used[c[0]]=used[c[1]]=1;var a=lp(c[0]),b=lp(c[1]);g+=arrowSVG(a.x,a.y,b.x,b.y,'ar'+i+'_'+j);});
+   K.forEach(function(k){if(used[k])return;var a=lp(k);
+    g+=a.y===0?'<path class="thin" d="M'+a.x+' 0 V9 M'+(a.x-6)+' 9 H'+(a.x+6)+'"/>':'<path class="thin" d="M'+a.x+' 60 V51 M'+(a.x-6)+' 51 H'+(a.x+6)+'"/>';});
+   boxes+=g+'</g>';
+  });
+  var XL=X0, XR=X0+NP*BW;
+  var vbx0=Math.min(-10,X0-BW-80), vbx1=Math.max(410,XR+BW+80);
+  var sym='<svg viewBox="'+vbx0+' 0 '+(vbx1-vbx0)+' 450" role="img" aria-label="Símbolo de la válvula y circuito">';
+  if(D.load==='consumer'){
+   sym+='<circle cx="150" cy="80" r="26" class="stroke" fill="var(--card)"/>'+
+    '<polygon points="150,58 142,72 158,72" fill="'+(air?'none':'var(--line)')+'" stroke="var(--line)" stroke-width="1.5"/>'+
+    '<g id="mot"><line x1="150" y1="80" x2="150" y2="98" stroke="var(--line)" stroke-width="2"/><circle cx="150" cy="80" r="2.5" fill="var(--line)"/></g>'+
+    '<text x="150" y="40" class="txt" text-anchor="middle">Consumidor (motor '+(air?'neumático':'hidráulico')+')</text>';
+  } else {
+   sym+='<rect id="capCh" x="42" y="62" width="10" height="46" fill="transparent"/><rect id="rodCh" x="0" y="62" width="10" height="46" fill="transparent"/>'+
+    '<rect x="40" y="60" width="220" height="50" class="stroke"/>'+
+    (D.load==='single'?'<polyline id="cylSpr" fill="none" stroke="var(--line)" stroke-width="1.5"/>':'')+
+    '<rect id="rod" x="0" y="79" width="90" height="12" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>'+
+    '<rect id="piston" x="0" y="62" width="16" height="46" fill="var(--line)"/>'+
+    '<text x="150" y="48" class="txt" text-anchor="middle">'+(D.load==='single'?'Cilindro de simple efecto (retorno por resorte)':'Cilindro de doble efecto')+'</text>';
+  }
+  var pxP=K.filter(function(k){return P[k].role==='P'}).map(px)[0];
+  K.forEach(function(k){
+   var x=px(k), r=P[k].role, d='', toLeft=(r==='R'&&pxP!==undefined&&x<pxP-2);
+   if(r==='W') d=D.load==='consumer'?'M'+x+' 260 V140 H150 V106':(D.work[k]==='cap'?'M'+x+' 260 V185 H50 V110':'M'+x+' 260 V160 H250 V110');
+   if(r==='P') d='M'+x+' 320 V370 H100 V394';
+   if(r==='R') d='M'+x+' 320 V'+(air?332:346);
+   sym+='<path id="L'+k+'" class="pipe" d="'+d+'"/>';
+   if(r==='R') sym+=air
+     ?'<polygon points="'+x+',332 '+(x-7)+',344 '+(x+7)+',344" fill="none" stroke="var(--line)" stroke-width="1.5"/><text x="'+(toLeft?x-10:x+10)+'" y="343" class="lbl" text-anchor="'+(toLeft?'end':'start')+'" style="font-size:13px">'+k+'</text>'
+     :'<path class="stroke" d="M'+(x-11)+' 340 V352 H'+(x+11)+' V340"/><text x="'+(toLeft?x-15:x+15)+'" y="352" class="lbl" text-anchor="'+(toLeft?'end':'start')+'" style="font-size:13px">'+k+'</text>';
+   if(r==='P') sym+='<text x="'+(x+5)+'" y="360" class="lbl" style="font-size:13px">'+k+'</text>';
+   if(r==='W') sym+='<text x="'+x+'" y="252" class="lbl" text-anchor="middle">'+k+'</text>';
+  });
+  sym+='<circle cx="100" cy="410" r="16" class="stroke" fill="var(--card)"/>'+
+   (air?'<polygon points="100,397 93,409 107,409" fill="none" stroke="var(--line)" stroke-width="1.5"/>'
+       :'<polygon points="100,397 93,409 107,409" fill="var(--line)"/><line x1="100" y1="426" x2="100" y2="436" class="thin"/><path class="stroke" d="M88 432 V444 H112 V432"/>')+
+   '<text x="78" y="414" class="txt" text-anchor="end">'+(air?'Fuente de aire':'Bomba')+'</text>'+
+   '<g id="gSym">'+boxes+
+   (ACTS[D.act.L]?ACTS[D.act.L].sym(XL,-1,D.act.labelL||''):'')+
+   (ACTS[D.act.R]?ACTS[D.act.R].sym(XR,1,D.act.labelR||''):'')+'</g></svg>';
+
+  /* ---------------- corte ---------------- */
+  var cut='<svg viewBox="0 0 640 320" role="img" aria-label="Corte longitudinal de la válvula">'+CUT_DEFS;
+  ['L','R'].forEach(function(sd){var a=ACTS[D.act[sd]]; if(a&&a.back) cut+=a.back(sd,ctx);});
+  cut+='<rect x="140" y="110" width="360" height="160" rx="5" fill="url(#gBody)" stroke="#4a4e54" stroke-width="1.4"/><rect x="140" y="110" width="360" height="160" rx="5" fill="url(#hatch)"/>';
+  K.forEach(function(k){var x=P[k].x,t=P[k].side==='t';
+   cut+='<rect x="'+(x-12)+'" y="'+(t?96:268)+'" width="24" height="16" fill="url(#gSteel)" stroke="#4a4e54"/>'+
+    '<text x="'+x+'" y="'+(t?88:304)+'" text-anchor="middle" class="cutlbl">'+k+'</text>';});
+  var hasGal=false;
+  K.forEach(function(k){
+   if(!P[k].alt) return; hasGal=true;
+   var xs=cham(k), lo=Math.min.apply(null,xs), hi=Math.max.apply(null,xs);
+   cut+='<rect id="gal'+k+'" x="'+(lo-10)+'" y="236" width="'+(hi-lo+20)+'" height="12" rx="3" opacity=".6" stroke="#2a2a2a" stroke-dasharray="3 3" stroke-width=".8"/>';
+   P[k].alt.forEach(function(ax,j){cut+='<rect id="gd'+k+j+'" x="'+(ax-9)+'" y="214" width="18" height="28"/>';});
+  });
+  if(hasGal) cut+='<text x="150" y="317" class="cutsmall">línea punteada: galería interna de escape (fuera del plano de corte)</text>';
+  K.forEach(function(k){var t=P[k].side==='t';
+   cham(k).forEach(function(x,j){cut+='<rect id="g'+k+'_'+j+'" x="'+(x-14)+'" y="142" width="28" height="76" rx="3"/>';});
+   var x=P[k].x;
+   cut+=t?'<rect id="c'+k+'" x="'+(x-9)+'" y="100" width="18" height="44"/>':'<rect id="c'+k+'" x="'+(x-9)+'" y="216" width="18" height="70"/>';
+  });
+  for(var n=0;n<=D.lands.length;n++) cut+='<rect id="sg'+n+'" x="0" y="160" width="0" height="40"/>';
+  cut+='<g id="spl"><rect x="'+D.stem[0]+'" y="172" width="'+(D.stem[1]-D.stem[0])+'" height="16" rx="3" fill="url(#gSteel)" stroke="#5b6168" stroke-width=".8"/>';
+  D.lands.forEach(function(l){cut+='<rect x="'+l[0]+'" y="160.5" width="'+(l[1]-l[0])+'" height="39" fill="url(#gSteel)" stroke="#5b6168" stroke-width=".9"/>';});
+  cut+='</g>';
+  ['L','R'].forEach(function(sd){var a=ACTS[D.act[sd]]; if(a&&a.front) cut+=a.front(sd,ctx);});
+  var maxC=Math.max.apply(null,POS.map(function(p){return p.conns.length}));
+  for(var f=0;f<maxC;f++) cut+='<path id="fp'+f+'" class="fp" d=""/>';
+  cut+='</svg>';
+
+  /* ---------------- controles ---------------- */
+  var controls='';
+  if(D.control==='hold') controls='<div class="btns"><button id="bHold" class="hold">'+D.hold.label+'</button></div>';
+  if(D.control==='pulse') controls='<div class="btns"><button id="bL">Pulso '+D.act.labelL+'</button><button id="bR">Pulso '+D.act.labelR+'</button></div>';
+  if(D.control==='select'){
+   controls='<div class="btns">'; D.buttons.forEach(function(b,j){controls+='<button id="bs'+j+'"'+(b.index===RI?' class="on"':'')+'>'+b.label+'</button>';}); controls+='</div>';
+  }
+
+  root.innerHTML='<h1>'+D.h1+'</h1><p class="sub">'+D.sub+'</p>'+
+   '<div class="seg" id="viewSeg"><button data-v="cut" class="on">Corte</button><button data-v="sym">Símbolo</button><button data-v="both">Ambos</button></div>'+
+   '<div class="views" id="views"><div class="card" id="cardCut"><h3>Corte longitudinal</h3>'+cut+
+   '<div class="legend" style="margin:6px 4px 2px"><span><span class="sw" style="background:var(--press)"></span>'+(air?'Aire a presión':'Aceite a presión')+'</span>'+
+   '<span><span class="sw" style="background:var(--ret)"></span>'+(air?'Escape a la atmósfera':'Retorno a tanque')+'</span>'+
+   '<span><span class="sw" style="background:'+IDLE+'"></span>'+(air?'Aire en reposo':'Aceite en reposo')+'</span></div></div>'+
+   '<div class="card" id="cardSym" style="display:none"><h3>Símbolo y circuito</h3>'+sym+'</div></div>'+
+   controls+
+   '<div class="info"><h2 id="tTitle"></h2><p id="tFlow"></p><p id="tEffect"></p>'+(D.control==='pulse'?'<p id="tMem" style="color:var(--muted)"></p>':'')+'</div>'+
+   '<p class="note">'+D.note+'</p>';
+
+  /* ---------------- dinámica ---------------- */
+  var q=function(id){return root.querySelector('#'+id)};
+  var MIN=56,MAX=228,SPEED=70,SV=140;
+  var ti=RI, s=POS[RI].shift, last=null, raf=null, sig={L:false,R:false}, holding=false, timers=[], motA=0;
+  var d0=cyl(ST[RI]), pos=d0>0?MAX:(d0<0?MIN:140);
+  function fill(id,c){var e=q(id);if(e)e.setAttribute('fill',c);}
+  function col(c){return c==='p'?PR:(c==='r'?RT:IDLE);}
+  function nearest(){var i=0,b=1e9;POS.forEach(function(p,j){var d=Math.abs(s-p.shift);if(d<b){b=d;i=j;}});return {i:i,near:b<3};}
+  function idxOf(sv){
+   for(var j=0;j<NP-1;j++){var a=POS[j].shift,b=POS[j+1].shift; if(sv<=a&&sv>=b) return j+(a-sv)/(a-b);}
+   return sv>POS[0].shift?0:NP-1;
+  }
+  function segs(){
+   var b0=D.bore[0],b1=D.bore[1],out=[],start=b0;
+   D.lands.forEach(function(l){
+    var a=Math.min(Math.max(l[0]+s,b0),b1), b=Math.min(Math.max(l[1]+s,b0),b1);
+    out.push([start,Math.max(start,a)]); start=Math.max(start,b);
+   });
+   out.push([start,Math.max(start,b1)]); return out;
+  }
+  function ovx(x,sg){var a=Math.max(x-14,sg[0]),b=Math.min(x+14,sg[1]);return b-a>0.5?[a,b]:null;}
+  function ov(k,sg){var xs=cham(k);for(var j=0;j<xs.length;j++){var o=ovx(xs[j],sg);if(o)return {o:o,x:xs[j]};}return null;}
+  function coilOn(side){
+   if(D.control==='pulse') return sig[side];
+   if(D.control==='hold') return holding&&D.hold.coil===side;
+   if(D.control==='select'){var b=D.buttons.filter(function(b){return b.index===ti})[0]; return !!(b&&b.coil===side);}
+   return false;
+  }
+
+  function render(){
+   var N=nearest(), i=N.i, near=N.near, st=ST[i];
+   var dir=near?cyl(st):0, atEnd=(dir>0&&pos>=MAX)||(dir<0&&pos<=MIN);
+   var moving=D.load==='consumer'?(near&&fed(st)):(dir!==0&&!atEnd);
+
+   q('spl').setAttribute('transform','translate('+s+',0)');
+   K.forEach(function(k){
+    cham(k).forEach(function(x,j){fill('g'+k+'_'+j,col(st[k]));});
+    fill('c'+k,col(st[k])); fill('gal'+k,col(st[k]));
+    (P[k].alt||[]).forEach(function(ax,j){fill('gd'+k+j,col(st[k]));});
+   });
+   var SG=segs();
+   SG.forEach(function(sg,j){
+    var e=q('sg'+j); e.setAttribute('x',sg[0]); e.setAttribute('width',Math.max(0,sg[1]-sg[0]));
+    var c='x'; K.forEach(function(k){if(ov(k,sg)){if(st[k]==='p')c='p';else if(st[k]==='r'&&c!=='p')c='r';}});
+    e.setAttribute('fill',col(c));
+   });
+   for(var j=0;j<maxC;j++){
+    var e=q('fp'+j), cn=POS[i].conns[j];
+    if(!moving||!cn){e.setAttribute('d','');continue;}
+    var a=cn[0],b=cn[1],A=null,B=null;
+    SG.forEach(function(sg){var x=ov(a,sg),y=ov(b,sg);if(x&&y&&!A){A=x;B=y;}});
+    if(!A){e.setAttribute('d','');continue;}
+    var oa=((A.o[0]+A.o[1])/2).toFixed(1), ob=((B.o[0]+B.o[1])/2).toFixed(1);
+    var ext=function(k){return P[k].side==='t'?96:286}, edg=function(k){return P[k].side==='t'?150:210};
+    var d=(A.x===P[a].x)?'M'+P[a].x+' '+ext(a)+' V'+edg(a)+' H'+oa:'M'+P[a].x+' 286 V242 H'+A.x+' V210 H'+oa;
+    d+=' V180 H'+ob;
+    d+=(B.x===P[b].x)?' V'+edg(b)+' H'+P[b].x+' V'+ext(b):' V210 H'+B.x+' V242 H'+P[b].x+' V286';
+    e.setAttribute('d',d);
+   }
+   var anyR=K.some(function(k){return P[k].role==='R'&&st[k]==='r'});
+   var c={s:s, drain:anyR?RT:IDLE, IDLE:IDLE, PR:PR};
+   ['L','R'].forEach(function(sd){var a=ACTS[D.act[sd]]; if(a&&a.update){c.on=coilOn(sd); a.update(q,sd,c);}});
+
+   var off=(RI-idxOf(s))*BW;
+   q('gSym').setAttribute('transform','translate('+off.toFixed(1)+',0)');
+   POS.forEach(function(p,jj){p.conns.forEach(function(cc,m){
+     var hot=near&&jj===i, isP=P[cc[0]].role==='P'||P[cc[1]].role==='P';
+     q('ar'+jj+'_'+m).style.color=hot?(isP?PR:RT):'var(--line)';
+   });});
+   K.forEach(function(k){
+    var cs=st[k], role=P[k].role, mv=moving&&cs!=='x', rev=role==='P'||(role==='W'&&cs==='r');
+    q('L'+k).setAttribute('class','pipe'+(cs==='p'?' p':(cs==='r'?' r':''))+(mv?' flow':'')+(mv&&rev?' rev':''));
+   });
+   if(D.load==='consumer'){
+    q('mot').setAttribute('transform','rotate('+motA.toFixed(1)+' 150 80)');
+   } else {
+    var capS='x',rodS='x';
+    K.forEach(function(k){if(D.work[k]==='cap')capS=st[k];if(D.work[k]==='rod')rodS=st[k];});
+    var cf=function(v){return v==='p'?'var(--pressfill)':(v==='r'?'var(--retfill)':'transparent')};
+    q('piston').setAttribute('x',pos); q('rod').setAttribute('x',pos+16);
+    q('capCh').setAttribute('width',Math.max(0,pos-42)); q('capCh').setAttribute('fill',cf(capS));
+    q('rodCh').setAttribute('x',pos+16); q('rodCh').setAttribute('width',Math.max(0,242-pos)); q('rodCh').setAttribute('fill',D.load==='single'?'transparent':cf(rodS));
+    if(D.load==='single') q('cylSpr').setAttribute('points',zig(pos+16,258,5,85,15));
+   }
+
+   var T=POS[ti].text, endMsg='';
+   if(near&&i===ti&&atEnd){
+    var em=D.endMsg||(air
+      ?{ext:' El cilindro ya está en su tope extendido: el aire deja de circular y la cámara alimentada queda a la presión de la red.',
+        ret:' El cilindro ya está en su tope retraído y el aire deja de circular.'}
+      :{ext:' El cilindro llegó a su tope: la presión sube hasta el ajuste de la limitadora y el caudal de la bomba regresa al tanque por ella.',
+        ret:' El cilindro llegó a su tope: la presión sube hasta el ajuste de la limitadora y el caudal de la bomba regresa al tanque por ella.'});
+    endMsg=dir>0?em.ext:em.ret;
+   }
+   q('tTitle').textContent=T.t; q('tFlow').textContent='Conexiones: '+T.f; q('tEffect').textContent=T.e+endMsg;
+   if(D.control==='pulse') q('tMem').textContent=sig.L?'Señal '+D.act.labelL+' activa: el piloto izquierdo empuja la corredera.':(sig.R?'Señal '+D.act.labelR+' activa: el piloto derecho empuja la corredera.':'Sin señal en '+D.act.labelL+' ni en '+D.act.labelR+': la corredera se queda donde la dejó el último pulso. Esa es la memoria biestable.');
+  }
+
+  function tick(ts){
+   if(last===null) last=ts;
+   var dt=Math.min(0.05,(ts-last)/1000); last=ts;
+   var tg=POS[ti].shift;
+   if(s<tg) s=Math.min(tg,s+SV*dt);
+   if(s>tg) s=Math.max(tg,s-SV*dt);
+   var N=nearest(), dir=N.near?cyl(ST[N.i]):0;
+   pos=Math.max(MIN,Math.min(MAX,pos+dir*SPEED*dt));
+   if(D.load==='consumer'&&N.near&&fed(ST[N.i])) motA=(motA+360*dt)%360;
+   render(); raf=requestAnimationFrame(tick);
+  }
+
+  if(D.control==='hold'){
+   var bh=q('bHold');
+   bh.addEventListener('pointerdown',function(e){e.preventDefault();holding=true;ti=D.hold.index;bh.classList.add('on');try{bh.setPointerCapture(e.pointerId)}catch(_){}} );
+   ['pointerup','pointercancel','lostpointercapture'].forEach(function(ev){bh.addEventListener(ev,function(){holding=false;ti=RI;bh.classList.remove('on');});});
+   bh.addEventListener('contextmenu',function(e){e.preventDefault();});
+  }
+  if(D.control==='pulse'){
+   var pulse=function(side){
+    if(sig.L||sig.R) return;
+    var b=q(side==='L'?'bL':'bR'); sig[side]=true; ti=side==='L'?0:NP-1; b.classList.add('on');
+    timers.push(setTimeout(function(){sig[side]=false;b.classList.remove('on');},700));
+   };
+   q('bL').onclick=function(){pulse('L')}; q('bR').onclick=function(){pulse('R')};
+  }
+  if(D.control==='select'){
+   D.buttons.forEach(function(b,j){q('bs'+j).onclick=function(){
+     ti=b.index; D.buttons.forEach(function(x,m){q('bs'+m).classList.toggle('on',m===j);});
+   };});
+  }
+  var seg=q('viewSeg');
+  seg.addEventListener('click',function(e){
+   var b=e.target.closest('button'); if(!b) return;
+   seg.querySelectorAll('button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on');
+   var v=b.dataset.v;
+   q('cardCut').style.display=v==='sym'?'none':''; q('cardSym').style.display=v==='cut'?'none':'';
+   q('views').classList.toggle('both',v==='both');
+  });
+
+  render(); raf=requestAnimationFrame(tick);
+  return {destroy:function(){cancelAnimationFrame(raf);timers.forEach(clearTimeout);}};
+ }};
+}
+
+/* ======================================================================
+   FICHAS (una por válvula de la tabla de referencia)
+   ref: {y0,y1} = franja de la fila en assets/tabla-distribuidores.jpg (píxeles de la imagen original, 1080x810)
+   slot: posición horizontal del puerto dentro de su caja, medida sobre la tabla.
+   ====================================================================== */
+var v22nc=makeSpoolModule({
+ id:'2-2-nc', cat:'Neumáticas (Pn)', title:'2/2 normalmente cerrada', ref:{y0:53,y1:142},
+ h1:'Válvula 2/2 normalmente cerrada (monoestable)',
+ sub:'Accionamiento manual por botón y retorno por resorte. Solo abre o cierra el paso del aire hacia un motor neumático, que gira mientras recibe flujo.',
+ medium:'air', load:'consumer', work:{'2':'cap'}, restIndex:1,
+ control:'hold', hold:{label:'Mantén presionado el botón', index:0, coil:null},
+ act:{L:'button',R:'spring'},
+ ports:{'1':{role:'P',side:'b',x:285,slot:.5},'2':{role:'W',side:'t',x:340,slot:.5}},
+ lands:[[305,340]], stem:[98,520], bore:[140,500],
+ positions:[
+  {shift:35, conns:[['1','2']], text:{t:'Botón presionado', f:'1 → 2.', e:'El resalte de la corredera se aparta y el aire de la red pasa a la utilización 2: el motor neumático gira mientras sostienes el botón.'}},
+  {shift:0, conns:[], text:{t:'Reposo: botón libre', f:'1 y 2 bloqueados.', e:'El resorte mantiene el resalte entre los dos puertos. La alimentación se queda cerrada en 1 y el motor no recibe aire, por eso se detiene. En reposo no pasa aire, por eso es normalmente cerrada.'}}
+ ],
+ note:'Solo tiene dos vías: 1 alimentación y 2 utilización. No tiene puerto de escape, así que al cerrar no descarga la línea hacia el consumidor; en este ejemplo el motor libera su aire por su propio escape. Es monoestable: el resorte la regresa a reposo en cuanto sueltas el botón. En el símbolo, la caja de la derecha es la de reposo y tiene los dos puertos con una T de bloqueo; la de la izquierda tiene la flecha de paso.'
+});
+
+var v22na=makeSpoolModule({
+ id:'2-2-na', cat:'Neumáticas (Pn)', title:'2/2 normalmente abierta', ref:{y0:142,y1:232},
+ h1:'Válvula 2/2 normalmente abierta (monoestable)',
+ sub:'Accionamiento manual por botón y retorno por resorte. En reposo deja pasar el aire hacia el motor neumático y al presionar el botón lo corta.',
+ medium:'air', load:'consumer', work:{'2':'cap'}, restIndex:1,
+ control:'hold', hold:{label:'Mantén presionado el botón', index:0, coil:null},
+ act:{L:'button',R:'spring'},
+ ports:{'1':{role:'P',side:'b',x:285,slot:.5},'2':{role:'W',side:'t',x:340,slot:.5}},
+ lands:[[249,289]], stem:[98,520], bore:[140,500],
+ positions:[
+  {shift:35, conns:[], text:{t:'Botón presionado', f:'1 y 2 bloqueados.', e:'El botón empuja la corredera contra el resorte y su resalte queda entre los dos puertos. Se corta el aire y el motor deja de girar.'}},
+  {shift:0, conns:[['1','2']], text:{t:'Reposo: botón libre', f:'1 → 2.', e:'El aire de la red pasa libremente a la utilización y el motor gira sin que nadie accione nada. En reposo deja pasar, por eso es normalmente abierta.'}}
+ ],
+ note:'Es la inversa de la normalmente cerrada: el cuerpo es el mismo y solo cambia la posición del resalte. Aquí hay que mantener presionado el botón para cerrar el paso y, en cuanto lo sueltas, el resorte vuelve a abrirlo. Tampoco tiene escape: 1 alimentación y 2 utilización. En el símbolo, la caja de la derecha es la de reposo y tiene la flecha de paso.'
+});
+
+var PORTS32={'1':{role:'P',side:'b',x:250,slot:.78},'2':{role:'W',side:'t',x:320,slot:.78},'3':{role:'R',side:'b',x:390,slot:.22}};
+
+var v32nc=makeSpoolModule({
+ id:'3-2-nc', cat:'Neumáticas (Pn)', title:'3/2 normalmente cerrada', ref:{y0:232,y1:322},
+ h1:'Válvula 3/2 normalmente cerrada (monoestable)',
+ sub:'Accionamiento manual por palanca y retorno por resorte. Solo el reposo es estable: al soltar la palanca, el resorte la regresa.',
+ medium:'air', load:'single', work:{'2':'cap'}, restIndex:1,
+ control:'hold', hold:{label:'Mantén presionado para accionar la palanca', index:0, coil:null},
+ act:{L:'lever',R:'spring'}, ports:PORTS32, lands:[[275,295],[310,330]], stem:[98,520], bore:[140,500],
+ positions:[
+  {shift:35, conns:[['1','2']], text:{t:'Palanca accionada', f:'1 → 2. El escape 3 queda bloqueado.', e:'El aire de la red entra a la cámara del cilindro y lo hace avanzar comprimiendo su resorte.'}},
+  {shift:0, conns:[['2','3']], text:{t:'Reposo: palanca libre', f:'2 → 3. La alimentación 1 queda bloqueada.', e:'La cámara del cilindro se descarga a la atmósfera por 3 y el resorte lo regresa. En reposo no pasa aire de la red, por eso es normalmente cerrada.'}}
+ ],
+ note:'Es monoestable: mientras sostienes la palanca la corredera se mantiene desplazada y en cuanto la sueltas el resorte la regresa. Numeración: 1 alimentación, 2 utilización, 3 escape.'
+});
+
+var v32na=makeSpoolModule({
+ id:'3-2-na', cat:'Neumáticas (Pn)', title:'3/2 normalmente abierta', ref:{y0:322,y1:412},
+ h1:'Válvula 3/2 normalmente abierta (monoestable)',
+ sub:'Misma construcción que la normalmente cerrada pero con la corredera invertida: en reposo deja pasar aire y al accionar la palanca lo corta y descarga la salida.',
+ medium:'air', load:'single', work:{'2':'cap'}, restIndex:1,
+ control:'hold', hold:{label:'Mantén presionado para accionar la palanca', index:0, coil:null},
+ act:{L:'lever',R:'spring'}, ports:PORTS32, lands:[[240,260],[345,365]], stem:[98,520], bore:[140,500],
+ positions:[
+  {shift:35, conns:[['2','3']], text:{t:'Palanca accionada', f:'2 → 3. La alimentación 1 queda bloqueada.', e:'La cámara del cilindro se descarga a la atmósfera y su resorte lo hace retroceder.'}},
+  {shift:0, conns:[['1','2']], text:{t:'Reposo: palanca libre', f:'1 → 2. El escape 3 queda bloqueado.', e:'El aire pasa libremente de 1 a 2 y mantiene el cilindro extendido. En reposo deja pasar, por eso es normalmente abierta.'}}
+ ],
+ note:'Compárala con la normalmente cerrada: el cuerpo y las cámaras son idénticos, solo cambia dónde están los resaltes de la corredera. Numeración: 1 alimentación, 2 utilización, 3 escape.'
+});
+
+var v42=makeSpoolModule({
+ id:'4-2', cat:'Neumáticas (Pn)', title:'4/2 monoestable (una bobina)', ref:{y0:412,y1:502},
+ h1:'Válvula 4/2 monoestable con mando electroneumático',
+ sub:'Una bobina (Y1) a la izquierda y retorno por resorte a la derecha. Gobierna un cilindro de doble efecto: con la bobina energizada avanza y al desenergizarla el resorte lo hace retroceder.',
+ medium:'air', load:'double', work:{'4':'cap','2':'rod'}, restIndex:1,
+ control:'hold', hold:{label:'Mantén presionado para energizar la bobina', index:0, coil:'L'},
+ act:{L:'sol',R:'spring',labelL:'Y1'},
+ ports:{'4':{role:'W',side:'t',x:250,slot:.22},'2':{role:'W',side:'t',x:390,slot:.78},'3':{role:'R',side:'b',x:455,alt:[185],slot:.22},'1':{role:'P',side:'b',x:320,slot:.78}},
+ lands:[[124,158],[281,315],[428,472]], stem:[118,520], bore:[140,500],
+ positions:[
+  {shift:44, conns:[['1','4'],['2','3']], text:{t:'Y1 energizada', f:'1 → 4 y 2 → 3.', e:'La cámara del émbolo recibe aire por 4 y la del vástago descarga por 3: el cilindro avanza.'}},
+  {shift:0, conns:[['1','2'],['4','3']], text:{t:'Reposo: bobina desenergizada', f:'1 → 2 y 4 → 3.', e:'La cámara del vástago recibe aire por 2 y la del émbolo descarga por 3: el cilindro retrocede y se queda retraído mientras no haya señal.'}}
+ ],
+ note:'La tabla la rotula como normalmente abierta, pero en una 4/2 ninguna vía queda cerrada: en las dos posiciones el aire llega a una de las cámaras del cilindro y la otra descarga. Lo que sí es normal es el reposo: sin corriente el cilindro permanece retraído. Numeración ISO 5599: 1 alimentación, 2 y 4 utilización y un solo escape 3. En el corte, ese escape tiene dos cámaras unidas por una galería interna: la izquierda atiende a 4 y la derecha a 2. Y1 equivale al pilotaje 14, que conecta 1 con 4.'
+});
+
+var v52=makeSpoolModule({
+ id:'5-2', cat:'Neumáticas (Pn)', title:'5/2 biestable (14 / 12)', ref:{y0:502,y1:592},
+ h1:'Válvula 5/2 biestable con mando electroneumático',
+ sub:'Pilotaje por solenoide en ambos extremos (señales 14 y 12). Dos posiciones estables: basta un pulso para cambiarla y se queda ahí aunque la señal desaparezca, como una memoria de un bit.',
+ medium:'air', load:'double', work:{'4':'cap','2':'rod'}, restIndex:1, control:'pulse',
+ act:{L:'solpilot',R:'solpilot',labelL:'14',labelR:'12'},
+ ports:{'4':{role:'W',side:'t',x:250,slot:.22},'2':{role:'W',side:'t',x:390,slot:.78},'5':{role:'R',side:'b',x:185,slot:.22},'1':{role:'P',side:'b',x:320,slot:.5},'3':{role:'R',side:'b',x:455,slot:.78}},
+ lands:[[167.5,197.5],[305,335],[442.5,472.5]], stem:[106,534], bore:[140,500],
+ positions:[
+  {shift:35, conns:[['1','4'],['2','3']], text:{t:'Posición 14', f:'1 → 4 y 2 → 3. El escape 5 queda bloqueado.', e:'La cámara del émbolo recibe aire por 4 y la del vástago descarga por 3: el cilindro avanza.'}},
+  {shift:-35, conns:[['1','2'],['4','5']], text:{t:'Posición 12', f:'1 → 2 y 4 → 5. El escape 3 queda bloqueado.', e:'La cámara del vástago recibe aire por 2 y la del émbolo descarga por 5: el cilindro retrocede.'}}
+ ],
+ note:'Servopilotada: el solenoide no mueve la corredera directamente, solo abre un pequeño paso de aire tomado de la alimentación que empuja el pistón piloto de ese extremo. Como no hay resortes, sin señal la corredera se queda donde está. Numeración ISO 5599: 1 alimentación, 2 y 4 utilización, 3 y 5 escape, 14 y 12 pilotajes (14 conecta 1 con 4; 12 conecta 1 con 2).'
+});
+
+var v43=makeSpoolModule({
+ id:'4-3-centro-cerrado', cat:'Hidráulicas (H)', title:'4/3 centro cerrado', ref:{y0:592,y1:682},
+ h1:'Válvula 4/3 de centro cerrado',
+ sub:'Accionamiento por solenoide en ambos extremos (Y1, Y2) y centrado por resortes. En el centro las cuatro vías quedan bloqueadas.',
+ medium:'oil', load:'double', work:{'A':'cap','B':'rod'}, restIndex:1, control:'select',
+ buttons:[{label:'Energizar Y1',index:0,coil:'L'},{label:'Centro',index:1,coil:null},{label:'Energizar Y2',index:2,coil:'R'}],
+ act:{L:'solspring',R:'solspring',labelL:'Y1',labelR:'Y2'},
+ ports:{'A':{role:'W',side:'t',x:390,slot:.22},'B':{role:'W',side:'t',x:250,slot:.78},'P':{role:'P',side:'b',x:320,slot:.78},'T':{role:'R',side:'b',x:455,alt:[185],slot:.22}},
+ lands:[[146,160],[233,267],[373,407],[480,494]], stem:[118,522], bore:[140,500],
+ positions:[
+  {shift:22, conns:[['P','A'],['B','T']], text:{t:'Y1 energizado: corredera a la derecha', f:'P → A y B → T (caja de flechas cruzadas).', e:'La presión entra a la cámara del émbolo y la cámara del vástago descarga a tanque: el cilindro avanza.'}},
+  {shift:0, conns:[], text:{t:'Posición central (reposo)', f:'P, T, A y B bloqueados. Los resortes mantienen la corredera centrada.', e:'El cilindro queda detenido y bloqueado hidráulicamente en su posición actual. El caudal de la bomba regresa al tanque por la limitadora de presión del circuito.'}},
+  {shift:-22, conns:[['P','B'],['A','T']], text:{t:'Y2 energizado: corredera a la izquierda', f:'P → B y A → T (caja de flechas paralelas).', e:'La presión entra a la cámara del vástago y la del émbolo descarga a tanque: el cilindro retrae.'}}
+ ],
+ note:'Cómo leer el corte: el cuerpo tiene cinco cámaras anulares. Las dos de los extremos son de tanque y se unen por una galería interna. En el centro, los dos resaltes grandes tapan A y B con un pequeño traslape, por eso nada circula. Al energizar un solenoide, su inducido empuja la corredera contra el resorte opuesto y cada resalte destapa media cámara: un lado queda abierto a la presión y el otro al tanque. En el símbolo, P y T quedan en los extremos inferiores tal como los dibuja la tabla.'
+});
+
+var v53=makeSpoolModule({
+ id:'5-3-centro-abierto', cat:'Hidráulicas (H)', title:'5/3 centro abierto', ref:{y0:682,y1:772},
+ h1:'Válvula 5/3 de centro abierto',
+ sub:'Accionamiento por solenoide en ambos extremos (Y1, Y2) y centrado por resortes. En el centro las dos utilizaciones quedan abiertas a tanque y la alimentación bloqueada, así que el cilindro queda flotante.',
+ medium:'oil', load:'double', work:{'4':'cap','2':'rod'}, restIndex:1, control:'select',
+ buttons:[{label:'Energizar Y1',index:0,coil:'L'},{label:'Centro',index:1,coil:null},{label:'Energizar Y2',index:2,coil:'R'}],
+ act:{L:'solspring',R:'solspring',labelL:'Y1',labelR:'Y2'},
+ ports:{'4':{role:'W',side:'t',x:250,slot:.22},'2':{role:'W',side:'t',x:390,slot:.78},'5':{role:'R',side:'b',x:185,slot:.22},'1':{role:'P',side:'b',x:320,slot:.5},'3':{role:'R',side:'b',x:455,slot:.78}},
+ lands:[[146,180],[303,337],[450,494]], stem:[118,522], bore:[140,500],
+ positions:[
+  {shift:22, conns:[['1','4'],['2','3']], text:{t:'Y1 energizado: corredera a la derecha', f:'1 → 4 y 2 → 3. El escape 5 queda bloqueado.', e:'La presión entra a la cámara del émbolo por 4 y la del vástago descarga a tanque por 3: el cilindro avanza.'}},
+  {shift:0, conns:[['4','5'],['2','3']], text:{t:'Posición central (reposo)', f:'4 → 5 y 2 → 3. La alimentación 1 queda bloqueada.', e:'Las dos cámaras del cilindro quedan abiertas a tanque, por lo que el vástago queda flotante: no hay presión que lo sostenga y una carga externa o la mano pueden moverlo. La bomba no alimenta al actuador y su caudal regresa al tanque por la limitadora de presión del circuito.'}},
+  {shift:-22, conns:[['1','2'],['4','5']], text:{t:'Y2 energizado: corredera a la izquierda', f:'1 → 2 y 4 → 5. El escape 3 queda bloqueado.', e:'La presión entra a la cámara del vástago por 2 y la del émbolo descarga a tanque por 5: el cilindro retrocede.'}}
+ ],
+ note:'Numeración ISO 5599, igual que la 5/2: 1 alimentación, 2 y 4 utilización, 3 y 5 escapes. Equivalencia con la nomenclatura hidráulica: 1 es P (bomba), 4 es A (cámara del émbolo), 2 es B (cámara del vástago) y 3 y 5 son T (retornos a tanque, uno por cada utilización). Cómo leer el corte: en el centro, el resalte del medio tapa la cámara de presión 1, mientras 4 comparte hueco con 5 y 2 con 3, por eso las dos utilizaciones descargan. Con Y1 la corredera va a la derecha: el resalte izquierdo tapa el escape 5 y el central deja pasar la presión de 1 hacia 4, mientras 2 sigue descargando por 3. Con Y2 ocurre lo contrario: el resalte derecho tapa 3 y el central comunica 1 con 2, mientras 4 sigue descargando por 5. Se usa cuando el actuador debe poder moverse libremente en reposo; si debe quedar sujeto, se usa el centro cerrado.'
+});
+
+/* ======================================================================
+   REGISTRO Y NAVEGACIÓN  (el orden sigue la tabla de referencia)
+   ====================================================================== */
+var MODULES=[v22nc, v22na, v32nc, v32na, v42, v52, v43, v53];
+
+/* ======================================================================
+   VISOR DE LA TABLA DE REFERENCIA (zoom y desplazamiento con transform CSS, sin librerías)
+   ====================================================================== */
+var RefViewer=(function(){
+  var IW=1080, IH=810, MAXK=4;
+  var vp=document.getElementById('vp'), layer=document.getElementById('layer'), hl=document.getElementById('hl'),
+      img=document.getElementById('refImg'), msg=document.getElementById('refMsg'), rowTxt=document.getElementById('refRow'),
+      tog=document.getElementById('refToggle'), body=document.getElementById('refBody');
+  var st={k:1,x:0,y:0}, fitK=1, atFit=true, row=null, ptrs={}, nptr=0, drag=null, pinch=null, lastTap={t:0,x:0,y:0};
+  var HX0=14, HX1=527;      /* franja horizontal resaltada: rótulos del profesor, símbolo y columnas de orificios/posiciones */
+  var ZX0=16, ZX1=480;      /* región a la que acerca "Ir a esta fila" */
+
+  function size(){ return {w:vp.clientWidth, h:vp.clientHeight}; }
+  function clampPan(){
+    var s=size(), w=IW*st.k, h=IH*st.k;
+    st.x = w<=s.w ? (s.w-w)/2 : Math.min(0,Math.max(s.w-w,st.x));
+    st.y = h<=s.h ? (s.h-h)/2 : Math.min(0,Math.max(s.h-h,st.y));
+  }
+  function apply(anim){
+    clampPan();
+    layer.style.transition = anim?'transform .28s ease':'none';
+    layer.style.transform='translate('+st.x.toFixed(2)+'px,'+st.y.toFixed(2)+'px) scale('+st.k.toFixed(4)+')';
+    hl.style.borderWidth=Math.max(1.5,2/st.k).toFixed(2)+'px';
+    atFit = st.k<=fitK*1.001;
+    vp.style.touchAction = atFit?'pan-y':'none';
+  }
+  function zoomAt(k2,cx,cy,anim){
+    k2=Math.max(fitK,Math.min(MAXK,k2));
+    var f=k2/st.k; st.x=cx-(cx-st.x)*f; st.y=cy-(cy-st.y)*f; st.k=k2; apply(anim);
+  }
+  function fit(anim){
+    var s=size(); if(!s.w||!s.h) return;
+    fitK=Math.min(s.w/IW,s.h/IH); st.k=fitK; st.x=0; st.y=0; apply(anim);
+  }
+  function toRegion(x0,y0,x1,y1,anim){
+    var s=size(); if(!s.w||!s.h) return;
+    var k=Math.max(fitK,Math.min(MAXK,Math.min(s.w/(x1-x0),s.h/(y1-y0))));
+    st.k=k; st.x=s.w/2-k*(x0+x1)/2; st.y=s.h/2-k*(y0+y1)/2; apply(anim);
+  }
+  function goRow(anim){ if(row) toRegion(ZX0,row.y0-6,ZX1,row.y1+6,anim); }
+  function rowVisible(){
+    if(!row) return true; var s=size();
+    var top=st.y+row.y0*st.k, bot=st.y+row.y1*st.k, left=st.x+ZX0*st.k, right=st.x+ZX1*st.k;
+    return top>=-1 && bot<=s.h+1 && left<s.w*0.6 && right>s.w*0.3;
+  }
+  function setRow(r,idx){
+    row=r||null;
+    if(!row){ hl.style.display='none'; rowTxt.textContent=''; return; }
+    hl.style.display='block';
+    hl.style.left=HX0+'px'; hl.style.top=row.y0+'px'; hl.style.width=(HX1-HX0)+'px'; hl.style.height=(row.y1-row.y0)+'px';
+    rowTxt.textContent='Fila resaltada: '+idx.title+' (fila '+idx.n+' de '+idx.total+').';
+    if(!rowVisible()) goRow(true);
+  }
+
+  /* botones */
+  function center(){var s=size();return {x:s.w/2,y:s.h/2};}
+  document.getElementById('zIn').onclick=function(){var c=center();zoomAt(st.k*1.5,c.x,c.y,true);};
+  document.getElementById('zOut').onclick=function(){var c=center();zoomAt(st.k/1.5,c.x,c.y,true);};
+  document.getElementById('zReset').onclick=function(){fit(true);};
+  document.getElementById('zRow').onclick=function(){goRow(true);};
+
+  /* rueda: zoom hacia el cursor */
+  vp.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var r=vp.getBoundingClientRect(), d=e.deltaY*(e.deltaMode===1?16:(e.deltaMode===2?400:1));
+    zoomAt(st.k*Math.exp(-d*0.0018), e.clientX-r.left, e.clientY-r.top, false);
+  },{passive:false});
+
+  /* arrastrar, pellizcar y doble toque */
+  function pinchStart(){
+    var ids=Object.keys(ptrs), a=ptrs[ids[0]], b=ptrs[ids[1]], r=vp.getBoundingClientRect();
+    var mx=(a.x+b.x)/2-r.left, my=(a.y+b.y)/2-r.top;
+    pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1, k:st.k, ix:(mx-st.x)/st.k, iy:(my-st.y)/st.k};
+  }
+  vp.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0) return;
+    try{vp.setPointerCapture(e.pointerId);}catch(_){}
+    ptrs[e.pointerId]={x:e.clientX,y:e.clientY}; nptr=Object.keys(ptrs).length;
+    if(nptr===1){ drag={x:e.clientX,y:e.clientY,sx:st.x,sy:st.y,moved:false,t:Date.now()}; pinch=null; }
+    else if(nptr===2){ drag=null; pinchStart(); }
+    layer.style.transition='none';
+  });
+  vp.addEventListener('pointermove',function(e){
+    if(!ptrs[e.pointerId]) return;
+    ptrs[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(pinch&&nptr>=2){
+      var ids=Object.keys(ptrs), a=ptrs[ids[0]], b=ptrs[ids[1]], r=vp.getBoundingClientRect();
+      var mx=(a.x+b.x)/2-r.left, my=(a.y+b.y)/2-r.top, d=Math.hypot(a.x-b.x,a.y-b.y)||1;
+      var k2=Math.max(fitK,Math.min(MAXK,pinch.k*d/pinch.d));
+      st.k=k2; st.x=mx-pinch.ix*k2; st.y=my-pinch.iy*k2; apply(false);
+    } else if(drag){
+      var dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+      if(!drag.moved&&Math.hypot(dx,dy)>5){drag.moved=true; vp.classList.add('drag');}
+      if(drag.moved){ st.x=drag.sx+dx; st.y=drag.sy+dy; apply(false); }
+    }
+  });
+  function endPtr(e){
+    if(!ptrs[e.pointerId]) return;
+    var wasDrag=drag, up=e.type==='pointerup';
+    delete ptrs[e.pointerId]; nptr=Object.keys(ptrs).length; vp.classList.remove('drag');
+    if(nptr<2) pinch=null;
+    if(nptr===1){ var id=Object.keys(ptrs)[0]; drag={x:ptrs[id].x,y:ptrs[id].y,sx:st.x,sy:st.y,moved:true,t:0}; }
+    else drag=null;
+    if(up&&wasDrag&&!wasDrag.moved&&nptr===0&&Date.now()-wasDrag.t<350){
+      var now=Date.now(), r=vp.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+      if(now-lastTap.t<350&&Math.hypot(x-lastTap.x,y-lastTap.y)<30){
+        lastTap.t=0;
+        if(atFit) zoomAt(Math.min(MAXK,Math.max(2.2,fitK*3)),x,y,true); else fit(true);
+      } else lastTap={t:now,x:x,y:y};
+    }
+  }
+  vp.addEventListener('pointerup',endPtr);
+  vp.addEventListener('pointercancel',endPtr);
+  vp.addEventListener('lostpointercapture',endPtr);
+
+  /* plegado (solo se usa en pantallas angostas) */
+  tog.addEventListener('click',function(){
+    var open=tog.getAttribute('aria-expanded')!=='true';
+    tog.setAttribute('aria-expanded',open?'true':'false'); body.classList.toggle('closed',!open);
+    if(open) requestAnimationFrame(function(){ fit(false); goRowIfNeeded(); });
+  });
+  function goRowIfNeeded(){ if(row&&!rowVisible()) goRow(false); }
+
+  /* tamaño y errores de carga */
+  var lastW=0;
+  function onResize(){
+    var s=size(); if(!s.w) return;
+    if(Math.abs(s.w-lastW)<1&&lastW) return; lastW=s.w;
+    var was=atFit; var kOld=fitK; fitK=Math.min(s.w/IW,s.h/IH);
+    if(was||st.k<fitK){ fit(false); } else { apply(false); }
+  }
+  if(window.ResizeObserver) new ResizeObserver(onResize).observe(vp); else window.addEventListener('resize',onResize);
+  img.addEventListener('error',function(){ msg.style.display='flex'; img.style.visibility='hidden'; hl.style.display='none'; });
+  var mq=window.matchMedia?window.matchMedia('(min-width:1000px)'):null;
+  fit(false);
+  return {setRow:setRow, fit:fit, goRow:goRow};
+})();
+
+(function(){
+  var nav=document.getElementById('nav'), stage=document.getElementById('stage'), current=null;
+  var groups={};
+  MODULES.forEach(function(m){ (groups[m.cat]=groups[m.cat]||[]).push(m); });
+  Object.keys(groups).forEach(function(cat){
+    var og=document.createElement('optgroup'); og.label=cat;
+    groups[cat].forEach(function(m){ var o=document.createElement('option'); o.value=m.id; o.textContent=m.title; og.appendChild(o); });
+    nav.appendChild(og);
+  });
+  function show(){
+    var id=(location.hash||'').slice(1);
+    var m=MODULES.filter(function(x){return x.id===id})[0]||MODULES[0];
+    if(current&&current.destroy) current.destroy();
+    nav.value=m.id; current=m.mount(stage);
+    RefViewer.setRow(m.ref,{title:m.title,n:MODULES.indexOf(m)+1,total:MODULES.length});
+  }
+  nav.onchange=function(){ location.hash=nav.value; };
+  window.addEventListener('hashchange',show);
+  show();
+})();
+</script>
+</body>
+</html>
